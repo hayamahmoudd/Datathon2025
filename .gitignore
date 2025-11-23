@@ -1,0 +1,20 @@
+# Google Cloud keys
+gcp-key.json
+
+# Python
+venv/
+__pycache__/
+
+# Node.js
+node_modules/
+.next/
+
+# Env files
+.env
+.env.local
+
+# Data files
+*.csv
+
+# OS files
+.DS_Store
