@@ -75,7 +75,7 @@ def homeless():
     return df.to_dict(orient="records")
 
 # -------------------------------------
-# CLUSTERS WITH FULL METRICS + BOUNDARIES
+# CLUSTERS WITH RECOMMENDATIONS
 # -------------------------------------
 @app.get("/clusters")
 def clusters():
@@ -84,16 +84,24 @@ def clusters():
 
     results = []
     for _, row in df.iterrows():
-        centroid_lat = safe_float(row["centroid_lat"])
-        centroid_lon = safe_float(row["centroid_lon"])
+        recommended_lat = safe_float(row.get("recommended_lat", 0))
+        recommended_lon = safe_float(row.get("recommended_lon", 0))
+        distance = safe_float(row.get("distance_to_nearest_shelter_km", 1.0))
 
         results.append({
             "cluster_id": int(row["cluster_id"]),
-            "centroid_lat": centroid_lat,
-            "centroid_lon": centroid_lon,
-            "population_weighted": safe_float(row.get("population_weighted", 0)),
-            "avg_shelter_distance_km": safe_float(row.get("avg_shelter_distance_km", 0)),
-            "boundary": make_circle(centroid_lat, centroid_lon)
+            "recommended_lat": recommended_lat,
+            "recommended_lon": recommended_lon,
+            "avg_severity_index": safe_float(row.get("avg_severity_index", 0)),
+            "distance_to_nearest_shelter_km": distance,
+            "need_score": safe_float(row.get("need_score", 0)),
+            "priority": str(row.get("priority", "UNKNOWN")),
+            "boundary": make_circle(recommended_lat, recommended_lon, radius_km=distance)
         })
 
     return results
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
